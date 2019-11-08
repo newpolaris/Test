@@ -186,9 +186,10 @@ Implementation of renderer class which performs Metal setup and per frame render
 
         NSRange range;
         range.location = 0;
-        range.length = 8;
+        range.length = 1;
         
         [renderEncoder setFragmentSamplerStates:_bindSamplers withRange:range];
+        //[renderEncoder setFragmentSamplerState:_bindSamplers[0] atIndex:0];
         
         // Set the texture object.  The AAPLTextureIndexBaseColor enum value corresponds
         ///  to the 'colorMap' argument in the 'samplingShader' function because its
