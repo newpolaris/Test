@@ -31,6 +31,10 @@ Implementation of renderer class which performs Metal setup and per frame render
 
     // The Metal buffer that holds the vertex data.
     id<MTLBuffer> _vertices;
+    
+    id<MTLSamplerState> _sampler;
+    
+    id<MTLSamplerState> _bindSamplers[8];
 
     // The number of vertices in the vertex buffer.
     NSUInteger _numVertices;
@@ -107,6 +111,16 @@ Implementation of renderer class which performs Metal setup and per frame render
         // Calculate the number of vertices by dividing the byte length by the size of each vertex
         _numVertices = sizeof(quadVertices) / sizeof(AAPLVertex);
 
+        
+        MTLSamplerDescriptor *samplderDesc = [MTLSamplerDescriptor new];
+        samplderDesc.minFilter = MTLSamplerMinMagFilterLinear;
+        samplderDesc.magFilter = MTLSamplerMinMagFilterLinear;
+        samplderDesc.sAddressMode = MTLSamplerAddressModeClampToEdge;
+        samplderDesc.tAddressMode = MTLSamplerAddressModeClampToEdge;
+        samplderDesc.rAddressMode = MTLSamplerAddressModeClampToEdge;
+        
+        _bindSamplers[0] = [_device newSamplerStateWithDescriptor:samplderDesc];
+        
         /// Create the render pipeline.
 
         // Load the shaders from the default library
@@ -170,6 +184,12 @@ Implementation of renderer class which performs Metal setup and per frame render
                                length:sizeof(_viewportSize)
                               atIndex:AAPLVertexInputIndexViewportSize];
 
+        NSRange range;
+        range.location = 0;
+        range.length = 8;
+        
+        [renderEncoder setFragmentSamplerStates:_bindSamplers withRange:range];
+        
         // Set the texture object.  The AAPLTextureIndexBaseColor enum value corresponds
         ///  to the 'colorMap' argument in the 'samplingShader' function because its
         //   texture attribute qualifier also uses AAPLTextureIndexBaseColor for its index.
